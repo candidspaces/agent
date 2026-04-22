@@ -36,7 +36,7 @@ export const PageShell = ({ onDismissModal, renderBody, tools }: Props) => {
             ) : (
               <IonChip>
                 <IonIcon icon={discOutline} color="primary" />
-                <IonLabel>Candid Space</IonLabel>
+                <IonLabel>Agent</IonLabel>
               </IonChip>
             )}
           </IonButtons>
