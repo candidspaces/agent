@@ -153,6 +153,7 @@ export const TransactionDetail = ({
                     transaction.from ??
                     '0000000000000000000000000000000000000000000='
                   }
+                  fullValue
                 />
               </div>
               <IonButton
@@ -189,7 +190,7 @@ export const TransactionDetail = ({
             </IonLabel>
           </IonCardHeader>
           <IonCardContent>
-            <KeyChip value={transaction.to} />
+            <KeyChip value={transaction.to} fullValue />
           </IonCardContent>
         </IonCard>
       </IonContent>

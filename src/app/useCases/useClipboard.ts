@@ -7,7 +7,7 @@ export const useClipboard = () => {
     navigator.clipboard.writeText(message);
     present({
       message: 'Copied.',
-      duration: 100,
+      duration: 1200,
       position: 'bottom',
     });
   };
