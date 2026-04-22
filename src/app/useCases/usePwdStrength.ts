@@ -22,14 +22,16 @@ export const usePasswordValidationProps = (
   const deferredPassword = useDeferredValue(value);
 
   useEffect(() => {
-    if (!window.zxcvbnts) {
+    const zxcvbnAsync = window.zxcvbnts?.core?.zxcvbnAsync;
+
+    if (typeof zxcvbnAsync !== 'function') {
       setResult(null);
       return;
     }
 
-    window.zxcvbnts.core
-      .zxcvbnAsync(deferredPassword)
-      .then((response: any) => setResult(response));
+    zxcvbnAsync(deferredPassword)
+      .then((response: any) => setResult(response))
+      .catch(() => setResult(null));
   }, [deferredPassword]);
 
   return {
