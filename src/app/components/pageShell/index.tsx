@@ -9,7 +9,7 @@ import {
   IonPage,
   IonToolbar,
 } from '@ionic/react';
-import { sunnyOutline } from 'ionicons/icons';
+import { discOutline } from 'ionicons/icons';
 
 interface ToolBarButton {
   label: string;
@@ -35,7 +35,7 @@ export const PageShell = ({ onDismissModal, renderBody, tools }: Props) => {
               </IonButton>
             ) : (
               <IonChip>
-                <IonIcon icon={sunnyOutline} color="primary" />
+                <IonIcon icon={discOutline} color="primary" />
                 <IonLabel>Candid Space</IonLabel>
               </IonChip>
             )}
