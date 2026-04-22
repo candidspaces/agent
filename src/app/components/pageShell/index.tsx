@@ -8,12 +8,8 @@ import {
   IonLabel,
   IonPage,
   IonToolbar,
-  useIonModal,
 } from '@ionic/react';
 import { sunnyOutline } from 'ionicons/icons';
-import Navigator from '../navigator';
-import { useCallback, useContext, useEffect } from 'react';
-import { AppContext } from '../../utils/appContext';
 
 interface ToolBarButton {
   label: string;
@@ -28,26 +24,6 @@ interface Props {
 }
 
 export const PageShell = ({ onDismissModal, renderBody, tools }: Props) => {
-  const { navigatorPublicKey } = useContext(AppContext);
-
-  const [present, dismiss] = useIonModal(Navigator, {
-    onDismiss: (role: string) => dismiss(undefined, role),
-  });
-
-  const openModal = useCallback(() => {
-    present();
-  }, [present]);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      if (!navigatorPublicKey) {
-        openModal();
-      }
-    }, 0);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [navigatorPublicKey, openModal]);
-
   return (
     <IonPage>
       <IonHeader>
@@ -58,7 +34,7 @@ export const PageShell = ({ onDismissModal, renderBody, tools }: Props) => {
                 Close
               </IonButton>
             ) : (
-              <IonChip onClick={openModal}>
+              <IonChip>
                 <IonIcon icon={sunnyOutline} color="primary" />
                 <IonLabel>Candid Space</IonLabel>
               </IonChip>

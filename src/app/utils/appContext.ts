@@ -3,8 +3,6 @@ import {
   Block,
   BlockIdHeaderPair,
   Transaction,
-  GraphNode,
-  GraphLink,
 } from '../utils/appTypes';
 
 interface AppState {
@@ -21,24 +19,6 @@ interface AppState {
   setCurrentBlock: (currentBlock: Block) => void;
   genesisBlock?: Block | null;
   setGenesisBlock: (genesisBlock: Block) => void;
-  requestGraph: (publicKeyB64: string) => void;
-  graph: {
-    nodes: GraphNode[];
-    links: GraphLink[];
-  } | null;
-  setGraph: (graph: { nodes: GraphNode[]; links: GraphLink[] } | null) => void;
-  navigatorPublicKey: string;
-  setNavigatorPublicKey: (publicKey: string) => void;
-  transactionRange: {
-    startHeight: number;
-    endHeight: number;
-    limit: number;
-  };
-  setTransactionRange: (range: {
-    startHeight: number;
-    endHeight: number;
-    limit: number;
-  }) => void;
   requestTransaction: (
     transaction_id: string,
     resultHandler: (transaction: Transaction) => void,
@@ -83,17 +63,6 @@ export const AppContext = createContext<AppState>({
   setCurrentBlock: (currentBlock: Block) => {},
   genesisBlock: undefined,
   setGenesisBlock: (genesisBlock: Block) => {},
-  requestGraph: (publicKeyB64: string) => {},
-  graph: null,
-  setGraph: () => {},
-  navigatorPublicKey: '',
-  setNavigatorPublicKey: () => {},
-  transactionRange: {
-    startHeight: 0,
-    endHeight: 0,
-    limit: 500,
-  },
-  setTransactionRange: () => {},
   requestTransaction:
     (transaction_id: string, resultHandler: (transaction: Transaction) => void) =>
     () => {},

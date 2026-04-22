@@ -32,13 +32,7 @@ import { TransactionList } from '../components/transaction';
 import { usePendingTransactions } from '../useCases/usePendingTxs';
 import { usePubKeyTransactions } from '../useCases/usePubKeyTxs';
 
-const Assert = ({
-  onDismiss,
-  forKey,
-}: {
-  onDismiss?: () => void;
-  forKey?: string;
-}) => {
+const Send = () => {
   const { pushTransaction } = useContext(AppContext);
 
   const {
@@ -49,7 +43,7 @@ const Assert = ({
     onInputChange: setAddress,
   } = useInputValidationProps(
     (address: string) => new RegExp('[A-Za-z0-9/+]{43}=').test(address),
-    forKey,
+    '',
   );
 
   const {
@@ -117,7 +111,6 @@ const Assert = ({
 
   return (
     <PageShell
-      onDismissModal={onDismiss}
       tools={
         !!selectedKey
           ? [
@@ -244,7 +237,7 @@ const Assert = ({
                   })
                 }
               >
-                Assert
+                Send
               </IonButton>
               <IonItemDivider />
               {!!pendingTransactions && !!pendingTransactions.length && (
@@ -267,7 +260,7 @@ const Assert = ({
   );
 };
 
-export default Assert;
+export default Send;
 
 const AuthorizeTransaction = ({
   onDismiss,
@@ -295,7 +288,7 @@ const AuthorizeTransaction = ({
       <IonCard>
         <IonCardHeader>
           <IonCardSubtitle>
-            Asserted by:
+            Sent by:
             <Agent
               publicKeys={publicKeys}
               selectedKeyIndex={selectedKeyIndex}
