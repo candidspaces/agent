@@ -1,28 +1,50 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../utils/appContext';
 import { Transaction } from '../utils/appTypes';
+import { socketEventListener } from '../utils/compat';
 
 export const usePendingTransactions = (selectedKey: string) => {
   const { requestPendingTransactions } = useContext(AppContext);
 
   const [pendingTransactions, setPending] = useState<Transaction[]>([]);
+  const pendingListenerCleanupRef = useRef<() => void>(() => {});
+
+  const refreshPendingTransactions = useCallback(() => {
+    pendingListenerCleanupRef.current();
+    pendingListenerCleanupRef.current =
+      requestPendingTransactions(selectedKey, (pending) => setPending(pending)) ??
+      (() => {});
+  }, [requestPendingTransactions, selectedKey]);
 
   useEffect(() => {
-    let cleanup = () => {};
-    const timeoutId = window.setTimeout(() => {
-      if (selectedKey) {
-        cleanup =
-          requestPendingTransactions(selectedKey, (pending) =>
-            setPending(pending),
-          ) ?? cleanup;
+    if (!selectedKey) {
+      setPending([]);
+      return;
+    }
+
+    refreshPendingTransactions();
+
+    const cleanupPushResult = socketEventListener<{
+      transaction_id: string;
+      error: string;
+    }>('push_transaction_result', (data) => {
+      if (!data.error) {
+        refreshPendingTransactions();
       }
-    }, 0);
+    });
+
+    const cleanupInvBlock = socketEventListener<string[]>(
+      'inv_block',
+      () => refreshPendingTransactions(),
+    );
 
     return () => {
-      cleanup();
-      window.clearTimeout(timeoutId);
+      cleanupPushResult();
+      cleanupInvBlock();
+      pendingListenerCleanupRef.current();
+      pendingListenerCleanupRef.current = () => {};
     };
-  }, [selectedKey, requestPendingTransactions]);
+  }, [selectedKey, refreshPendingTransactions]);
 
   return pendingTransactions;
 };
