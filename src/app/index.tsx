@@ -1,5 +1,5 @@
 import { IonApp, setupIonicReact } from '@ionic/react';
-import Explorer from './modals';
+import SendApp from './modals';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -24,8 +24,6 @@ import { useState, useEffect } from 'react';
 import { AppContext } from './utils/appContext';
 import {
   Transaction,
-  GraphLink,
-  GraphNode,
   Block,
   BlockIdHeaderPair,
 } from './utils/appTypes';
@@ -64,23 +62,6 @@ const App: React.FC = () => {
   const [genesisBlock, setGenesisBlock] =
     usePersistentState<Block | null>('genesis-block', null);
 
-  const [graph, setGraph] = usePersistentState<{
-    nodes: GraphNode[];
-    links: GraphLink[];
-  } | null>('flow-graph', null);
-
-  const [navigatorPublicKey, setNavigatorPublicKey] = usePersistentState(
-    'navigator-public-key',
-    '',
-  );
-  const [transactionRange, setTransactionRange] = usePersistentState(
-    'navigator-transaction-range',
-    {
-      startHeight: 0,
-      endHeight: 0,
-      limit: 500,
-    },
-  );
   const [latestSocketResponse, setLatestSocketResponse] = useState<{
     receivedAt: string;
     payload: unknown;
@@ -218,20 +199,6 @@ const App: React.FC = () => {
     if (readyState !== ReadyState.OPEN) return;
     sendJsonMessage({ type: 'get_tip_header' });
   }, [readyState, sendJsonMessage]);
-
-  const requestGraph = useCallback(
-    (publicKeyB64: string = '') => {
-      if (readyState !== ReadyState.OPEN) return;
-
-      sendJsonMessage({
-        type: 'get_graph',
-        body: {
-          public_key: publicKeyB64,
-        },
-      });
-    },
-    [readyState, sendJsonMessage],
-  );
 
   const pushTransaction = async (
     to: string,
@@ -398,13 +365,6 @@ const App: React.FC = () => {
     setCurrentBlock,
     genesisBlock,
     setGenesisBlock,
-    requestGraph,
-    graph,
-    setGraph,
-    navigatorPublicKey,
-    setNavigatorPublicKey,
-    transactionRange,
-    setTransactionRange,
     pushTransaction,
     requestTransaction,
     requestPkTransactions,
@@ -427,7 +387,7 @@ const App: React.FC = () => {
   return (
     <AppContext.Provider value={appState}>
       <IonApp>
-        <Explorer />
+        <SendApp />
       </IonApp>
     </AppContext.Provider>
   );

@@ -1,55 +1,5 @@
-import { Graph } from 'ngraph.graph';
-import fromDot from 'ngraph.fromdot';
 import { sha3_256 } from 'js-sha3';
-import { GraphLink, GraphNode, Transaction } from './appTypes';
-
-export const parseGraphDOT = (
-  dotString: string,
-  forKey: string,
-) => {
-  const graph: Graph = fromDot(dotString || 'digraph{}');
-
-
-  const nodes: GraphNode[] = [];
-
-  graph.forEachNode((node: any) => {
-    const pubkey = node.data.pubkey as string;
-    const label = node.data.label as string;
-    const memo = node.data.memo as string | undefined;
-    const balance = Number(node.data.balance);
-
-    if (forKey !== pubkey) return;
-
-
-    nodes.push({
-      id: node.id,
-      group: 1,
-      label,
-      memo,
-      pubkey,
-      balance,
-    });
-  });
-
-  const links: GraphLink[] = [];
-  graph.forEachLink((link: any) => {
-    const source = link.fromId;
-    const target = link.toId;
-
-    if (!nodes.map((n) => n.id).includes(source)) return;
-    if (!nodes.map((n) => n.id).includes(target)) return;
-
-    links.push({
-      source,
-      target,
-      value: Number(link.data.weight),
-      time: Number(link.data.time),
-      memo: link.data.memo as string | undefined,
-    });
-  });
-
-  return { nodes, links };
-};
+import { Transaction } from './appTypes';
 
 export const shortenHex = (value: string) => {
   return `${value.substring(0, 5)}...${value.substring(60)}`;

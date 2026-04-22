@@ -1,23 +1,3 @@
-export interface GraphNode {
-  id: number;
-  group?: number;
-  neighbors?: GraphNode[];
-  links?: GraphLink[];
-  pubkey: string;
-  label: string;
-  memo?: string;
-  memoTransactionId?: string;
-  balance: number;
-}
-
-export interface GraphLink {
-  source: number;
-  target: number;
-  value: number;
-  time: number;
-  memo?: string;
-}
-
 export interface BlockHeader {
   previous: string;
   hash_list_root: string;
