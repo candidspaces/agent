@@ -36,7 +36,10 @@ import {
   transactionID,
   socketEventListener,
 } from './utils/compat';
-import { DEFAULT_CRUZBIT_NODE } from './utils/constants';
+import {
+  DEFAULT_CRUZBIT_NODE,
+  DEFAULT_HD_DERIVATION_LABEL,
+} from './utils/constants';
 
 setupIonicReact({ mode: 'md' });
 
@@ -54,6 +57,10 @@ const App: React.FC = () => {
   const [selectedKeyIndex, setSelectedKeyIndex] = usePersistentState<
     [number, number]
   >('selected-key-index', [0, 0]);
+  const [hdDerivationLabel, setHdDerivationLabel] = usePersistentState(
+    'hd-derivation-label',
+    DEFAULT_HD_DERIVATION_LABEL,
+  );
 
   const [tipHeader, setTipHeader] = useState<BlockIdHeaderPair>();
   const [currentBlock, setCurrentBlock] =
@@ -215,6 +222,7 @@ const App: React.FC = () => {
         tipHeader?.header.height,
         selectedKeyIndex,
         passphrase,
+        hdDerivationLabel,
       );
 
       if (!transaction) return;
@@ -371,6 +379,8 @@ const App: React.FC = () => {
     requestPendingTransactions,
     selectedNode,
     setSelectedNode,
+    hdDerivationLabel,
+    setHdDerivationLabel,
     colorScheme,
     latestSocketResponse,
   };

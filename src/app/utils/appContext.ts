@@ -46,6 +46,8 @@ interface AppState {
   ) => (() => void) | undefined;
   selectedNode: string;
   setSelectedNode: (node: string) => void;
+  hdDerivationLabel: string;
+  setHdDerivationLabel: (label: string) => void;
   colorScheme: 'light' | 'dark';
 }
 
@@ -82,6 +84,8 @@ export const AppContext = createContext<AppState>({
     () => {},
   selectedNode: '',
   setSelectedNode: () => {},
+  hdDerivationLabel: '',
+  setHdDerivationLabel: () => {},
   colorScheme: 'light',
   pushTransaction: (
     to: string,

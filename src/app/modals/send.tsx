@@ -34,6 +34,7 @@ import { usePubKeyTransactions } from '../useCases/usePubKeyTxs';
 
 const Send = () => {
   const { pushTransaction } = useContext(AppContext);
+  const { hdDerivationLabel, setHdDerivationLabel } = useContext(AppContext);
 
   const {
     value: address,
@@ -87,6 +88,17 @@ const Send = () => {
     address,
     memo,
   });
+  const [presentLabelSettingsModal, dismissLabelSettingsModal] = useIonModal(
+    DerivationLabelSettings,
+    {
+      onDismiss: () => dismissLabelSettingsModal(),
+      value: hdDerivationLabel,
+      onSave: (label: string) => {
+        setHdDerivationLabel(label);
+        dismissLabelSettingsModal();
+      },
+    },
+  );
 
   const {
     publicKeys,
@@ -101,6 +113,14 @@ const Send = () => {
   const [presentActionSheet] = useIonActionSheet();
 
   const handleActionSheet = ({ data, role }: OverlayEventDetail) => {
+    if (data?.['action'] === 'settings') {
+      presentLabelSettingsModal({
+        initialBreakpoint: 0.5,
+        breakpoints: [0, 0.5],
+      });
+      return;
+    }
+
     if (data?.['action'] === 'delete') {
       deleteAgent();
     }
@@ -128,6 +148,12 @@ const Send = () => {
                     onDidDismiss: ({ detail }) => handleActionSheet(detail),
                     header: 'Actions',
                     buttons: [
+                      {
+                        text: 'HD label settings',
+                        data: {
+                          action: 'settings',
+                        },
+                      },
                       {
                         text: 'Delete agent',
                         role: 'destructive',
@@ -353,5 +379,62 @@ const AuthorizeTransaction = ({
         </IonCardContent>
       </IonCard>
     </div>
+  );
+};
+
+const DerivationLabelSettings = ({
+  onDismiss,
+  onSave,
+  value,
+}: {
+  onDismiss: () => void;
+  onSave: (label: string) => void;
+  value: string;
+}) => {
+  const {
+    value: label,
+    isValid: isLabelValid,
+    isTouched: isLabelTouched,
+    onBlur: onBlurLabel,
+    onInputChange: setLabel,
+  } = useInputValidationProps(
+    (input: string) => input.trim().length > 0,
+    value,
+  );
+
+  return (
+    <IonCard>
+      <IonCardHeader>
+        <IonCardSubtitle>HD Derivation Label</IonCardSubtitle>
+      </IonCardHeader>
+      <IonCardContent>
+        <IonInput
+          className={`${isLabelValid && 'ion-valid'} ${
+            isLabelValid === false && 'ion-invalid'
+          } ${isLabelTouched && 'ion-touched'}`}
+          label="Derivation Label"
+          labelPlacement="stacked"
+          value={label}
+          errorText="Label cannot be empty"
+          onIonBlur={onBlurLabel}
+          onIonInput={(event) =>
+            setLabel(event.target.value?.toString() ?? '')
+          }
+        />
+        <IonButton
+          className="ion-margin-top"
+          fill="solid"
+          expand="block"
+          strong={true}
+          disabled={!isLabelValid}
+          onClick={() => onSave(label.trim())}
+        >
+          Save
+        </IonButton>
+        <IonButton fill="outline" expand="block" strong={true} onClick={onDismiss}>
+          Cancel
+        </IonButton>
+      </IonCardContent>
+    </IonCard>
   );
 };

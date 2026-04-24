@@ -5,7 +5,10 @@ import { hmac } from '@noble/hashes/hmac';
 import { sha512 } from '@noble/hashes/sha2';
 import { utf8ToBytes } from '@noble/hashes/utils';
 import { sha3_256 } from 'js-sha3';
-import { BLOCKS_UNTIL_NEW_SERIES } from '../utils/constants';
+import {
+  BLOCKS_UNTIL_NEW_SERIES,
+  DEFAULT_HD_DERIVATION_LABEL,
+} from '../utils/constants';
 import { Transaction } from '../utils/appTypes';
 import { useContext } from 'react';
 import { AppContext } from '../utils/appContext';
@@ -27,8 +30,9 @@ function deriveHDSeed(
   seed: Uint8Array,
   account: number,
   address: number,
+  hdDerivationLabel: string = DEFAULT_HD_DERIVATION_LABEL,
 ): Uint8Array {
-  const label = new TextEncoder().encode('necessitated');
+  const label = new TextEncoder().encode(hdDerivationLabel);
   const indexBytes = new Uint8Array([account, address]);
   const input = new Uint8Array([...seed, ...indexBytes]);
   const digest = hmac(sha512, label, input);
@@ -39,6 +43,7 @@ function generateHDKeypair(
   mnemonic: string,
   account: number,
   address: number,
+  hdDerivationLabel: string,
   readOnly: boolean = true,
 ) {
   const masterSeed = bip39.mnemonicToSeedSync(mnemonic);
@@ -47,6 +52,7 @@ function generateHDKeypair(
     new Uint8Array(masterSeed),
     account,
     address,
+    hdDerivationLabel,
   );
   const keypair = nacl.sign.keyPair.fromSeed(derivedSeed);
 
@@ -59,6 +65,7 @@ function generateHDKeypair(
 
 const getPersonas = (
   passphrase: string,
+  hdDerivationLabel: string,
   numAccounts: number = 1,
   numAddressesPerAccount: number = 7,
 ) => {
@@ -72,7 +79,9 @@ const getPersonas = (
   for (let acct = 0; acct < numAccounts; acct++) {
     keypairs.push([]);
     for (let addr = 0; addr < numAddressesPerAccount; addr++) {
-      keypairs[acct].push(generateHDKeypair(mnemonic, acct, addr));
+      keypairs[acct].push(
+        generateHDKeypair(mnemonic, acct, addr, hdDerivationLabel),
+      );
     }
   }
 
@@ -85,12 +94,18 @@ export const signTransaction = async (
   tipHeight: number,
   agentIndex: [number, number],
   passPhrase: string,
+  hdDerivationLabel: string,
 ) => {
   //Prompt -> Sign -> Forget
   //We never persist the passphrase or private keys in state or anywhere else.
   //Any usage of the private keys must require a user prompt for their passphrase.
   const mnemonic = generateMnemonic(passPhrase);
-  const keyPair = generateHDKeypair(mnemonic, ...agentIndex, false);
+  const keyPair = generateHDKeypair(
+    mnemonic,
+    ...agentIndex,
+    hdDerivationLabel,
+    false,
+  );
 
   const transaction: Transaction = {
     time: Math.floor(Date.now() / 1000),
@@ -116,11 +131,16 @@ export const signTransaction = async (
 };
 
 export const useAgent = () => {
-  const { publicKeys, setPublicKeys, selectedKeyIndex, setSelectedKeyIndex } =
-    useContext(AppContext);
+  const {
+    publicKeys,
+    setPublicKeys,
+    selectedKeyIndex,
+    setSelectedKeyIndex,
+    hdDerivationLabel,
+  } = useContext(AppContext);
 
   const importAgent = (passphrase: string) => {
-    const keys = getPersonas(passphrase, 7).map((o) =>
+    const keys = getPersonas(passphrase, hdDerivationLabel, 7).map((o) =>
       o.map((p) => p.publicKey),
     );
 
