@@ -27,8 +27,9 @@ function deriveHDSeed(
   seed: Uint8Array,
   account: number,
   address: number,
+  labelValue: string,
 ): Uint8Array {
-  const label = new TextEncoder().encode('necessitated');
+  const label = new TextEncoder().encode(labelValue);
   const indexBytes = new Uint8Array([account, address]);
   const input = new Uint8Array([...seed, ...indexBytes]);
   const digest = hmac(sha512, label, input);
@@ -39,6 +40,7 @@ function generateHDKeypair(
   mnemonic: string,
   account: number,
   address: number,
+  labelValue: string,
   readOnly: boolean = true,
 ) {
   const masterSeed = bip39.mnemonicToSeedSync(mnemonic);
@@ -47,6 +49,7 @@ function generateHDKeypair(
     new Uint8Array(masterSeed),
     account,
     address,
+    labelValue,
   );
   const keypair = nacl.sign.keyPair.fromSeed(derivedSeed);
 
@@ -59,6 +62,7 @@ function generateHDKeypair(
 
 const getPersonas = (
   passphrase: string,
+  labelValue: string,
   numAccounts: number = 1,
   numAddressesPerAccount: number = 7,
 ) => {
@@ -72,7 +76,7 @@ const getPersonas = (
   for (let acct = 0; acct < numAccounts; acct++) {
     keypairs.push([]);
     for (let addr = 0; addr < numAddressesPerAccount; addr++) {
-      keypairs[acct].push(generateHDKeypair(mnemonic, acct, addr));
+      keypairs[acct].push(generateHDKeypair(mnemonic, acct, addr, labelValue));
     }
   }
 
@@ -85,12 +89,13 @@ export const signTransaction = async (
   tipHeight: number,
   agentIndex: [number, number],
   passPhrase: string,
+  labelValue: string,
 ) => {
   //Prompt -> Sign -> Forget
   //We never persist the passphrase or private keys in state or anywhere else.
   //Any usage of the private keys must require a user prompt for their passphrase.
   const mnemonic = generateMnemonic(passPhrase);
-  const keyPair = generateHDKeypair(mnemonic, ...agentIndex, false);
+  const keyPair = generateHDKeypair(mnemonic, ...agentIndex, labelValue, false);
 
   const transaction: Transaction = {
     time: Math.floor(Date.now() / 1000),
@@ -116,18 +121,26 @@ export const signTransaction = async (
 };
 
 export const useAgent = () => {
-  const { publicKeys, setPublicKeys, selectedKeyIndex, setSelectedKeyIndex } =
-    useContext(AppContext);
+  const {
+    publicKeys,
+    setPublicKeys,
+    selectedKeyIndex,
+    setSelectedKeyIndex,
+    label,
+    setLabel,
+  } = useContext(AppContext);
 
-  const importAgent = (passphrase: string) => {
-    const keys = getPersonas(passphrase, 7).map((o) =>
+  const importAgent = (passphrase: string, labelValue: string) => {
+    const keys = getPersonas(passphrase, labelValue, 7).map((o) =>
       o.map((p) => p.publicKey),
     );
 
+    setLabel(labelValue);
     setPublicKeys(keys);
   };
 
   const deleteAgent = () => {
+    setLabel('candidspaces');
     setPublicKeys([[]]);
   };
 
@@ -138,6 +151,7 @@ export const useAgent = () => {
     selectedKeyIndex,
     setSelectedKeyIndex,
     publicKeys,
+    label,
     importAgent,
     deleteAgent,
   };

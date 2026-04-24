@@ -7,13 +7,15 @@ import {
   IonCardHeader,
   IonCardSubtitle,
 } from '@ionic/react';
+import { useState } from 'react';
 import { usePasswordValidationProps } from '../../useCases/usePwdStrength';
 
 const EnterPassPhrase = ({
   applyPassPhrase,
 }: {
-  applyPassPhrase: (phrase: string) => void;
+  applyPassPhrase: (phrase: string, label: string) => void;
 }) => {
+  const [label, setLabel] = useState('candidspaces');
   const {
     value: passPhrase,
     onBlur: onBlurPassPhrase,
@@ -27,6 +29,16 @@ const EnterPassPhrase = ({
 
   return (
     <>
+      <section className="ion-padding">
+        <IonInput
+          label="Label"
+          placeholder="Agent label"
+          labelPlacement="stacked"
+          value={label}
+          onIonInput={(event) => setLabel(event.target.value?.toString() ?? '')}
+        />
+      </section>
+
       <section className="ion-padding">
         <IonInput
           className={`${isPassPhraseValid && 'ion-valid'} ${
@@ -48,7 +60,7 @@ const EnterPassPhrase = ({
       <IonButton
         disabled={!isPassPhraseValid}
         expand="block"
-        onClick={() => applyPassPhrase(passPhrase)}
+        onClick={() => applyPassPhrase(passPhrase, label)}
         className="ion-padding ion-no-margin"
       >
         Apply
@@ -60,7 +72,7 @@ const EnterPassPhrase = ({
 export const SetupAgent = ({
   importKeys,
 }: {
-  importKeys: (passPhrase: string) => void;
+  importKeys: (passPhrase: string, label: string) => void;
 }) => {
   return (
     <IonCard>
@@ -74,7 +86,7 @@ export const SetupAgent = ({
           <p>The agent will be lost if you forget it.</p>
         </IonText>
         <EnterPassPhrase
-          applyPassPhrase={(passPhrase) => importKeys(passPhrase)}
+          applyPassPhrase={(passPhrase, label) => importKeys(passPhrase, label)}
         />
       </IonCardContent>
     </IonCard>

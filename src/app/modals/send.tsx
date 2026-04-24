@@ -62,7 +62,7 @@ const Send = () => {
     if (!isAddressValid || !isMemoValid) {
       return;
     }
-    pushTransaction(address, memo, passphrase, selectedKeyIndex, (data: any) => {
+    pushTransaction(address, memo, passphrase, label, selectedKeyIndex, (data: any) => {
       presentToast({
         message:
           data.error ||
@@ -92,6 +92,7 @@ const Send = () => {
     publicKeys,
     selectedKeyIndex,
     setSelectedKeyIndex,
+    label,
     importAgent,
     deleteAgent,
   } = useAgent();

@@ -54,6 +54,10 @@ const App: React.FC = () => {
   const [selectedKeyIndex, setSelectedKeyIndex] = usePersistentState<
     [number, number]
   >('selected-key-index', [0, 0]);
+  const [label, setLabel] = usePersistentState<string>(
+    'agent-label',
+    'candidspaces',
+  );
 
   const [tipHeader, setTipHeader] = useState<BlockIdHeaderPair>();
   const [currentBlock, setCurrentBlock] =
@@ -204,6 +208,7 @@ const App: React.FC = () => {
     to: string,
     memo: string,
     passphrase: string,
+    labelValue: string,
     selectedKeyIndex: [number, number],
     resultHandler: (data: { transaction_id: string; error: string }) => void,
   ) => {
@@ -215,6 +220,7 @@ const App: React.FC = () => {
         tipHeader?.header.height,
         selectedKeyIndex,
         passphrase,
+        labelValue,
       );
 
       if (!transaction) return;
@@ -356,6 +362,8 @@ const App: React.FC = () => {
     setPublicKeys,
     selectedKeyIndex,
     setSelectedKeyIndex,
+    label,
+    setLabel,
     requestTipHeader,
     tipHeader,
     setTipHeader,

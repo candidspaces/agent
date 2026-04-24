@@ -10,6 +10,8 @@ interface AppState {
   setPublicKeys: (keys: string[][]) => void;
   selectedKeyIndex: [number, number];
   setSelectedKeyIndex: (index: [number, number]) => void;
+  label: string;
+  setLabel: (label: string) => void;
   requestTipHeader: () => void;
   tipHeader?: BlockIdHeaderPair;
   setTipHeader: (tipHeader: BlockIdHeaderPair) => void;
@@ -36,6 +38,7 @@ interface AppState {
     to: string,
     memo: string,
     passphrase: string,
+    label: string,
     selectedKeyIndex: [number, number],
     resultHandler: (data: { transaction_id: string; error: string }) => void,
   ) => Promise<(() => void) | undefined>;
@@ -54,6 +57,8 @@ export const AppContext = createContext<AppState>({
   setPublicKeys: () => {},
   selectedKeyIndex: [0, 0],
   setSelectedKeyIndex: (index: [number, number]) => {},
+  label: 'candidspaces',
+  setLabel: (label: string) => {},
   tipHeader: undefined,
   requestTipHeader: () => {},
   setTipHeader: () => {},
@@ -87,6 +92,7 @@ export const AppContext = createContext<AppState>({
     to: string,
     memo: string,
     passphrase: string,
+    label: string,
     selectedKeyIndex: [number, number],
     resultHandler: (data: { transaction_id: string; error: string }) => void,
   ) => Promise.resolve(undefined),
